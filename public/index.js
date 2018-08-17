@@ -87,12 +87,58 @@ var LogoutPage = {
   }
 };
 
+var CatsShowPage = {
+  template: "#cats-show-page",
+   data: function() {
+    return {
+      cat: {},
+      name: "",
+      breed: "",
+      age: "",
+      registry: "",
+      image: "",
+      errors: []
+    };
+   },
+   created: function() {
+    axios
+      .get("/api/cats/" + this.$route.params.id).then(function(response){
+        this.cat = response.data;
+        console.log(this.cat);
+      }.bind(this));
+    },
+    methods: {
+      submit: function() {
+        var params = {
+          name: this.name,
+          breed: this.breed,
+          age: this.age,
+          registry: this.registry,
+          image: this.image,
+          cat_id: this.cat.id
+        }
+        axios
+          .post("/api/cats", params)
+          .then(function(response) {
+            console.log(response.data);
+            router.push("/cats/" + response.data.id);
+          })
+          .catch(
+            function(error) {
+              this.errors = error.response.data.errors;
+            }.bind(this));
+        }
+    },
+    computed: {}
+};
+
 var router = new VueRouter({
   routes: [
   { path: "/", component: HomePage },
   { path: "/signup", component: SignupPage },
   { path: "/login", component: LoginPage },
-  { path: "/logout", component: LogoutPage }
+  { path: "/logout", component: LogoutPage },
+  { path: "/cats/:id", component: CatsShowPage } 
   ],
   scrollBehavior: function(to, from, savedPosition) {
     return { x: 0, y: 0 };
