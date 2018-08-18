@@ -87,6 +87,56 @@ var LogoutPage = {
   }
 };
 
+var CatsIndexPage = {
+  template: "#cats-index-page",
+   data: function() {
+    return {
+      cats: []
+    };
+   },
+   created: function() {
+    axios.get("/api/cats").then(function(response){
+      this.cats = response.data;
+      console.log(this.cats);
+    }.bind(this));
+   } 
+};
+
+var CatsNewPage = {
+  template: "#cats-new-page",
+   data: function() {
+    return {
+      name: "",
+      breed: "",
+      age: "",
+      registry: "",
+      image: ""
+      errors: []
+    };
+   },
+   methods: {
+    submit: function() {
+      var params = {
+        name: this.name,
+        breed: this.breed,
+        age: this.age,
+        registry: this.registry,
+        image: this.image
+      };
+      axios
+      .post("/api/cats", params)
+      .then(function(response) {
+        console.log(response.data);
+        router.push("/cats/" + response.data.id);
+      })
+      .catch(
+        function(error) {
+          this.errors = error.response.data.errors;
+        }.bind(this));
+      }
+   } 
+};
+
 var CatsShowPage = {
   template: "#cats-show-page",
    data: function() {
@@ -121,7 +171,7 @@ var CatsShowPage = {
           .post("/api/cats", params)
           .then(function(response) {
             console.log(response.data);
-            router.push("/cats/" + response.data.id);
+            router.push("/home/" + response.data.id);
           })
           .catch(
             function(error) {
@@ -138,11 +188,10 @@ var router = new VueRouter({
   { path: "/signup", component: SignupPage },
   { path: "/login", component: LoginPage },
   { path: "/logout", component: LogoutPage },
+  { path: "/cats", component: CatsIndexPage },
+  { path: "/cats/new", component: CatsNewPage }, 
   { path: "/cats/:id", component: CatsShowPage } 
-  ],
-  scrollBehavior: function(to, from, savedPosition) {
-    return { x: 0, y: 0 };
-  }
+  ]
 });
 
 var app = new Vue({
